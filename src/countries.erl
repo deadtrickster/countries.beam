@@ -6,6 +6,7 @@
 -module(countries).
 
 -export([get/1]).
+-export([by_capital/1]).
 
 -behaviour(application).
 
@@ -40,6 +41,10 @@ get(Iso) ->
     [] -> undefined
   end.
 
+by_capital(Capital) ->
+  [{_, ISO}] = ets:lookup(cb_index_table, {<<"capital">>, Capital}),
+  countries:get(ISO).
+
 %%====================================================================
 %% Supervisor
 %%====================================================================
@@ -49,5 +54,6 @@ start_link() ->
 
 init([]) ->
   {ok, _} = ets:file2tab(code:priv_dir(?APP) ++ "/COUNTRIES.DAT"),
+  {ok, _} = ets:file2tab(code:priv_dir(?APP) ++ "/INDEX.DAT"),
   Procs = [],
   {ok, {{one_for_one, 1, 5}, Procs}}.
